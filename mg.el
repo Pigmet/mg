@@ -111,13 +111,15 @@
 (defun mg--insert-checkout-button (hash label dir)
   (insert-text-button label
 		      'action
-		      (lexical-let ((hash hash) (dir dir))
-				   (-lambda (_)
-				     (mylet [default-directory dir]
-					    (shell-command
-					     (format "git checkout %s" hash)))))))
+		      (lexical-let ((hash hash)
+				    (dir dir))
+			(-lambda (_)
+			  (mylet [default-directory dir]
+				 (shell-command
+				  (format "git checkout %s" hash)))))))
 
 (defun mg-checkout-commit ()
+  "Checkouts a previous commit."
   (interactive)
   (mylet [coll-hash (mg--get-hashes)
 		    coll-label (mg--log-pretty-lines)
@@ -145,7 +147,6 @@
 	     s (shell-command-to-string "git status")]
 	 (-> (s-match re s)
 	     -second-item)))
-
 
 
 ;;;;;;;;;;;;
