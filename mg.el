@@ -126,6 +126,7 @@
 		    dir default-directory]
 	 (with-current-buffer checkout-buff
 	   (erase-buffer)
+	   (insert "Click to checkout:\n\n")
 	   (loop for hash in coll-hash
 		 for label in coll-label
 		 do
@@ -147,7 +148,6 @@
 	     s (shell-command-to-string "git status")]
 	 (-> (s-match re s)
 	     -second-item)))
-
 
 ;;;;;;;;;;;;
 ;; branch ;;
@@ -282,18 +282,10 @@ git branch -D (branch)"
 	    (format "git remote rm %s" rm))
 	   (message (format "remote %s was removed." rm)))))
 
-(defun mg-add-remote ()
-  (interactive)
-  (mylet [name (read-string "Enter remote (e.g. origin): ")
-	       target (read-string "Enter target: ")
-	       cmd (format "git remote add %s %s" name target) ]
-	 (shell-command cmd)
-	 (message (format "remote %s was added." name))))
-
 (defun mg-remote-how-to-push-manually ()
   "prints shell command for adding a remote."
   (interactive)
-  (message "e.g: git push -u origin master"))
+  (kill-new "git push -u origin master"))
 
 (defun mg-push-remote-master ()
   "Note: To see how to push manually from shell, call mg-how-to-push-manually."
