@@ -112,11 +112,15 @@
   (insert-text-button label
 		      'action
 		      (lexical-let ((hash hash)
-				    (dir dir))
+				    (dir dir)
+				    (label label))
 			(-lambda (_)
 			  (mylet [default-directory dir]
-				 (shell-command
-				  (format "git checkout %s" hash)))))))
+				 (when (y-or-n-p
+					(format "Checkout %s?" label))
+				   (shell-command
+				    (format "git checkout %s" hash))))))))
+
 
 (defun mg-checkout-commit ()
   "Checkouts a previous commit."
@@ -188,6 +192,7 @@
   (mylet [s (s-join ", " (mg--list-branch-strings))]
 	 (message s)))
 
+;; branch deletion
 
 (setq mg-delete-buff (generate-new-buffer "mg delete"))
 
