@@ -288,9 +288,9 @@ git branch -D (branch)"
 	   (message (format "remote %s was removed." rm)))))
 
 (defun mg-remote-how-to-push-manually ()
-  "prints shell command for adding a remote."
+  "Inserts shell command for adding a remote."
   (interactive)
-  (kill-new "git push -u origin master"))
+  (insert "git push -u origin master"))
 
 (defun mg-push-remote-master ()
   "Note: To see how to push manually from shell, call mg-how-to-push-manually."
@@ -338,6 +338,34 @@ git branch -D (branch)"
   (interactive)
   (mylet [res (shell-command-to-string "git push")]
 	 (message res)))
+
+;; clearn
+
+(setq mg-clean-buff (generate-new-buffer "mg-clean"))
+
+(defun mg--untracked-files()
+  (mylet [re (rx "Would remove" (+ space) (group-n 1 (+ (not (any "\n")))))]
+	 (-map '-last-item
+	       (s-match-strings-all
+		re
+		(shell-command-to-string "git clean -n")))))
+
+(defun mg-list-untracked-files()
+  (interactive)
+  (mylet [files (mg--untracked-files)]
+	 (message (s-join " " files))))
+
+(defun mg-execute-clean ()
+  "Removes all untracked files."
+  (interactive)
+  (mylet [files (mg--untracked-files)
+		ask-user (format "Remove %s" (s-join " " files))]
+	 (when (y-or-n-p ask-user)
+	   (mylet [s (shell-command-to-string "git clean -f")]
+		  (with-current-buffer mg-clean-buff
+		    (erase-buffer)
+		    (insert s))
+		  (switch-to-buffer-other-window mg-clean-buff)))))
 
 (provide 'mg)
 
