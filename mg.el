@@ -212,14 +212,12 @@
   (mg--delete-branch-impl br "-D"))
 
 (defun mg-delete-branch ()
-  "Executes the git command:
-git branch -d (branch)"
+  "Executes the git command: git branch -d (branch)"
   (interactive)
-  (while t
-    (mylet [coll (mg--list-branch-strings)
-		 br (ido-completing-read "Choose branch:" coll)]
-	   (when (y-or-n-p (format "Delete %s ?" br))
-	     (mg--delete-branch-standard br)))))
+  (mylet [coll (mg--list-branch-strings)
+	       br (ido-completing-read "Choose branch:" coll)]
+	 (when (y-or-n-p (format "Delete %s ?" br))
+	   (mg--delete-branch-standard br))))
 
 (defun mg-delete-branch-hard ()
   "Executes the git command:
