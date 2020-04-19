@@ -394,11 +394,10 @@
 (defun mg-stash-clear ()
   (interactive)
   (when (y-or-n-p "clear all stashes?")
-    (mylet [s (shell-command-to-string "git stash clear")]
-	   (with-current-buffer mg-message-buff
-	     (erase-buffer)
-	     (insert s))
-	   (switch-to-buffer-other-window mg-message-buff))))
+    (shell-command "git stash clear")
+    (message "cleared all stashes")))
+
+
 
 (provide 'mg)
 
