@@ -397,8 +397,6 @@
     (shell-command "git stash clear")
     (message "cleared all stashes")))
 
-
-
 (provide 'mg)
 
 
