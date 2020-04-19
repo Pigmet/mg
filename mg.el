@@ -220,14 +220,12 @@
 	   (mg--delete-branch-standard br))))
 
 (defun mg-delete-branch-hard ()
-  "Executes the git command:
-git branch -D (branch)"
+  "Executes the git command: git branch -D (branch)"
   (interactive)
-  (while t
-    (mylet [coll (mg--list-branch-strings)
-		 br (ido-completing-read "Choose branch:" coll)]
-	   (when (y-or-n-p (format "Delete %s ?" br))
-	     (mg--delete-branch-hard br)))))
+  (mylet [coll (mg--list-branch-strings)
+	       br (ido-completing-read "Choose branch:" coll)]
+	 (when (y-or-n-p (format "Delete %s ?" br))
+	   (mg--delete-branch-hard br))))
 
 (setq mg-branch (generate-new-buffer "*mg-branch*"))
 
@@ -364,6 +362,10 @@ git branch -D (branch)"
 		    (erase-buffer)
 		    (insert s))
 		  (switch-to-buffer-other-window mg-clean-buff)))))
+
+;; stash
+
+
 
 (provide 'mg)
 
