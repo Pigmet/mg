@@ -365,6 +365,11 @@
 
 ;; stash
 
+(defun mg-stash ()
+  (interactive)
+  (mylet [s (shell-command-to-string "git stash")]
+	 (message s)))
+
 
 
 (provide 'mg)
