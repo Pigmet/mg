@@ -383,6 +383,17 @@
 	   (insert s))
 	 (switch-to-buffer-other-window mg-message-buff)))
 
+(defun mg-stash-list()
+  (interactive)
+  (mylet [s (shell-command-to-string "git stash list")]
+	 (with-current-buffer mg-message-buff
+	   (erase-buffer)
+	   (insert s))
+	 (switch-to-buffer-other-window mg-message-buff)))
+
+
+
+
 
 (provide 'mg)
 
