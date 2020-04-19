@@ -365,19 +365,23 @@
 
 ;; stash
 
+(setq mg-message-buff (generate-new-buffer "mg-message"))
+
 (defun mg-stash ()
   (interactive)
   (mylet [s (shell-command-to-string "git stash")]
-	 (message s)))
+	 (with-current-buffer mg-message-buff
+	   (erase-buffer)
+	   (insert s))
+	 (switch-to-buffer-other-window mg-message-buff)))
 
-(defun mg-stash-pop
-    (interactive)
-  (mylet [s (shell-command-to-string "git stash pop")]
-	 (message s)))
-
-
-
-
+(defun mg-stash-pop ()
+  (interactive)
+  (mylet [s (shell-command-to-string "git stash")]
+	 (with-current-buffer mg-message-buff
+	   (erase-buffer)
+	   (insert s))
+	 (switch-to-buffer-other-window mg-message-buff)))
 
 
 (provide 'mg)
