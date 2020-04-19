@@ -370,6 +370,14 @@
   (mylet [s (shell-command-to-string "git stash")]
 	 (message s)))
 
+(defun mg-stash-pop
+    (interactive)
+  (mylet [s (shell-command-to-string "git stash pop")]
+	 (message s)))
+
+
+
+
 
 
 (provide 'mg)
