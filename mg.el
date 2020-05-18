@@ -23,21 +23,20 @@
 (defun mg-init ()
   "Initializes git repository in the current directory."
   (interactive)
-  (mg--display-text-buff mg-buff
-			 (shell-command-to-string "git init")))
+  (message "%s"(shell-command-to-string "git init")))
 
 (defun mg-add-all()
   (interactive)
   (when (y-or-n-p "add all?")
-    (shell-command "git add --all")))
+    (message "%s"
+	     (shell-command-to-string "git add --all"))))
 
 (defun mg-add-current-file ()
   (interactive)
   (mylet [file (buffer-file-name)]
 	 (when (y-or-n-p (format "add %s ?" file))
-	   (mg--display-text-buff
-	    mg-buff
-	    (shell-command-to-string (format "git add %s" file))))))
+	   (message "%s"
+		    (shell-command-to-string (format "git add %s" file))))))
 
 ;;;;;;;;;
 ;; log ;;
@@ -235,10 +234,7 @@
 		   br (ido-completing-read "Choose branch: " branches)
 		   res (shell-command-to-string
 			(format "git checkout %s" br))]
-	 (with-current-buffer mg-branch
-	   (erase-buffer)
-	   (save-excursion (insert res)))
-	 (switch-to-buffer-other-window mg-branch)))
+	 (message "%s" res)))
 
 (defalias 'mg-switch-branch 'mg-branch-checkout)
 
@@ -358,10 +354,7 @@
 		ask-user (format "Remove %s" (s-join " " files))]
 	 (when (y-or-n-p ask-user)
 	   (mylet [s (shell-command-to-string "git clean -f")]
-		  (with-current-buffer mg-clean-buff
-		    (erase-buffer)
-		    (insert s))
-		  (switch-to-buffer-other-window mg-clean-buff)))))
+		  (message s)))))
 
 ;; stash
 
@@ -396,6 +389,20 @@
   (when (y-or-n-p "clear all stashes?")
     (shell-command "git stash clear")
     (message "cleared all stashes")))
+
+;; remove
+
+(defun mg-remove-current-file-cashed ()
+  (interactive)
+  (mylet [f (-> (buffer-file-name) (file-name-nondirectory))]
+	 (when (y-or-n-p (format "remove %s cached?" f))
+	   (message (shell-command-to-string (format "git rm --cached %s" f))))))
+
+(defun mg-remove-current-file ()
+  (interactive)
+  (mylet [f (-> (buffer-file-name) (file-name-nondirectory))]
+	 (when (y-or-n-p (format "remove %s (also from filesystem)?" f))
+	   (message (shell-command-to-string (format "git rm  %s" f))))))
 
 (provide 'mg)
 
