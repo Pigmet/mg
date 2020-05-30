@@ -6,6 +6,13 @@
 
 ;;This file contains Elisp functions for interaction with git.
 
+(defmacro mg-with-buffer
+    (buffer &rest body)
+  "Evaluates body in buffer and switch to it. The content of the buffer gets erased before the evaluation happens."
+  `(progn
+     (with-current-buffer ,buffer (erase-buffer)  ,@body)
+     (switch-to-buffer-other-window ,buffer)))
+
 (defun mg--display-text-buff
     (buff s)
   "Print string s in buffer buff."
@@ -82,9 +89,9 @@
   (mylet [msg (read-string "Enter commit message: ")
 	      msg (format "git commit -a -m \"%s\"" msg)
 	      res (shell-command-to-string msg)]
-	 (mg--display-text-buff
-	  commit-buff
-	  res)))
+	 (mg-with-buffer commit-buff
+			 (save-excursion
+			   (insert res)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; checkout commits  ;;
@@ -199,10 +206,7 @@
   "Deletes the branch br. Returns the git message."
   (mylet [res   (shell-command-to-string
 		 (format "git branch %s %s" option br))]
-	 (with-current-buffer mg-delete-buff
-	   (erase-buffer)
-	   (insert res))
-	 (switch-to-buffer-other-window mg-delete-buff)))
+	 (message res)))
 
 (defun mg--delete-branch-standard (br)
   (mg--delete-branch-impl "-d" br))
