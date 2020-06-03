@@ -318,7 +318,8 @@
   (mylet [res (shell-command-to-string "git tag")
 	      coll (->> res
 			(s-split "\n")
-			(-map 's-trim))]
+			(-map 's-trim)
+			reverse)]
 	 (with-current-buffer
 	     mg-tag-buffer
 	   (erase-buffer)
@@ -339,7 +340,6 @@
 	    msg (read-string "message:")]
 	 (shell-command (format "git tag -a %s -m \"%s\"" v msg))
 	 (message "new tag %s was created." v)))
-
 
 ;;;;;;;;;;;
 ;; other ;;
