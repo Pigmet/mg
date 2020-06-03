@@ -302,7 +302,7 @@
 (setq mg-specific-tag-buffer
       (generate-new-buffer "*mg-specific-tag*"))
 
-(defun mg--show-tag
+(defun mg--show-tag-buffer
     (tag)
   (mylet [res (shell-command-to-string
 	       (format "git show %s" tag))]
