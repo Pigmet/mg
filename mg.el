@@ -302,16 +302,21 @@
 (setq mg-specific-tag-buffer
       (generate-new-buffer "*mg-specific-tag*"))
 
+(defun mg--tag-show-string (tag)
+  (shell-command-to-string (format "git show %s" tag)))
+
 (defun mg--show-tag-buffer
     (tag)
-  (mylet [res (shell-command-to-string
-	       (format "git show %s" tag))]
+  (mylet [res (mg--tag-show-string tag)]
 	 (with-current-buffer
 	     mg-specific-tag-buffer
 	   (erase-buffer)
 	   (save-excursion
 	     (insert res)))
 	 (switch-to-buffer-other-window mg-specific-tag-buffer)))
+
+(defun mg--show-tag (tag)
+  (message "%s" (mg--tag-show-string tag)))
 
 (defun mg--get-tag-list ()
   (->>   (shell-command-to-string "git tag")
@@ -333,7 +338,7 @@
 		    s
 		    'action
 		    (lexical-let ((tag s))
-		      (-lambda(b) (mg--show-tag tag))))
+		      (-lambda(b) (mg--show-tag-buffer tag))))
 		   (insert "\n"))))
 	 (switch-to-buffer-other-window mg-tag-buffer)))
 
