@@ -313,13 +313,16 @@
 	     (insert res)))
 	 (switch-to-buffer-other-window mg-specific-tag-buffer)))
 
+(defun mg--get-tag-list ()
+  (->>   (shell-command-to-string "git tag")
+	 (s-split "\n")
+	 (-map 's-trim)
+	 (-remove (-lambda (s) (zerop (length s))))
+	 reverse))
+
 (defun mg-list-tag ()
   (interactive)
-  (mylet [res (shell-command-to-string "git tag")
-	      coll (->> res
-			(s-split "\n")
-			(-map 's-trim)
-			reverse)]
+  (mylet [coll (mg--get-tag-list)]
 	 (with-current-buffer
 	     mg-tag-buffer
 	   (erase-buffer)
@@ -340,6 +343,25 @@
 	    msg (read-string "message:")]
 	 (shell-command (format "git tag -a %s -m \"%s\"" v msg))
 	 (message "new tag %s was created." v)))
+
+(defun mg-checkout-tag ()
+  (interactive)
+  (mylet [coll (mg--get-tag-list)]
+	 (with-current-buffer mg-tag-buffer
+	   (erase-buffer)
+	   (save-excursion
+	     (loop for tag in coll
+		   do
+		   (insert-text-button
+		    tag
+		    'action
+		    (lexical-let ((tag tag))
+		      (-lambda (b)
+			(message
+			 (shell-command-to-string
+			  (format "git checkout %s" tag))))))
+		   (insert "\n"))))
+	 (switch-to-buffer-other-window mg-tag-buffer)))
 
 ;;;;;;;;;;;
 ;; other ;;
