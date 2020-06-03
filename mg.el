@@ -350,6 +350,7 @@
 	 (with-current-buffer mg-tag-buffer
 	   (erase-buffer)
 	   (save-excursion
+	     (insert "checkout tag:\n")
 	     (loop for tag in coll
 		   do
 		   (insert-text-button
