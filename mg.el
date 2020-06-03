@@ -295,6 +295,52 @@
 	 (message (shell-command-to-string
 		   (format "git push -u %s master" target)))))
 
+;; tagging
+
+(setq mg-tag-buffer (generate-new-buffer"*mg-tag*"))
+
+(setq mg-specific-tag-buffer
+      (generate-new-buffer "*mg-specific-tag*"))
+
+(defun mg--show-tag
+    (tag)
+  (mylet [res (shell-command-to-string
+	       (format "git show %s" tag))]
+	 (with-current-buffer
+	     mg-specific-tag-buffer
+	   (erase-buffer)
+	   (save-excursion
+	     (insert res)))
+	 (switch-to-buffer-other-window mg-specific-tag-buffer)))
+
+(defun mg-list-tag ()
+  (interactive)
+  (mylet [res (shell-command-to-string "git tag")
+	      coll (->> res
+			(s-split "\n")
+			(-map 's-trim))]
+	 (with-current-buffer
+	     mg-tag-buffer
+	   (erase-buffer)
+	   (save-excursion
+	     (loop for s in coll
+		   do
+		   (insert-text-button
+		    s
+		    'action
+		    (lexical-let ((tag s))
+		      (-lambda(b) (mg--show-tag tag))))
+		   (insert "\n"))))
+	 (switch-to-buffer-other-window mg-tag-buffer)))
+
+(defun mg-create-tag ()
+  (interactive)
+  (mylet [v (read-string "version:")
+	    msg (read-string "message:")]
+	 (shell-command (format "git tag -a %s -m \"%s\"" v msg))
+	 (message "new tag %s was created." v)))
+
+
 ;;;;;;;;;;;
 ;; other ;;
 ;;;;;;;;;;;
