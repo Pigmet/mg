@@ -309,6 +309,75 @@
 	 (shell-command (format "git tag -a %s -m \"%s\"" v msg))
 	 (message "new tag %s was created." v)))
 
+(defun mg--get-coll-tag (buf)
+  "Returns coll of tags."
+  (mylet [s (with-current-buffer buf
+	      (shell-command-to-string "git tag"))]
+	 (->> s
+	      (s-split "\n")
+	      (-map 's-trim)
+	      (-remove (-lambda (s)(= 0 (length s))))
+	      reverse)))
+
+(defun mg--show-tag-impl (buf tag)
+  (mylet [s (with-current-buffer buf
+	      (shell-command-to-string
+	       (format "git show %s" tag)))]
+	 (with-current-buffer
+	     mg-specific-tag-buffer
+	   (erase-buffer)
+	   (save-excursion
+	     (insert s)))
+	 (switch-to-buffer-other-window
+	  mg-specific-tag-buffer)))
+
+(defun mg-show-list-tag ()
+  (interactive)
+  (mylet [buf (current-buffer)
+	      coll (mg--get-coll-tag buf)]
+	 (with-current-buffer
+	     mg-tag-buffer
+	   (erase-buffer)
+	   (save-excursion
+	     (loop for tag in coll
+		   do
+		   (insert "\n")
+		   (insert-text-button
+		    tag
+		    'action
+		    (lexical-let ((buf buf)
+				  (tag tag))
+		      (-lambda (b)
+			(mg--show-tag-impl buf tag)))))))
+	 (switch-to-buffer-other-window mg-tag-buffer)))
+
+(defun mg--checkout-tag-impl (buf tag)
+  (when (y-or-n-p (format "checkout %s ?" tag))
+    (with-current-buffer buf
+      (message (shell-command-to-string
+		(format "git checkout %s" tag))))))
+
+(defun mg-checkout-tag ()
+  (interactive)
+  (mylet [buf (current-buffer)
+	      coll (mg--get-coll-tag buf)]
+	 (with-current-buffer
+	     mg-tag-buffer
+	   (erase-buffer)
+	   (save-excursion
+	     (loop for tag in coll
+		   do
+		   (insert "\n")
+		   (insert-text-button
+		    tag
+		    'action
+		    (lexical-let ((buf buf)
+				  (tag tag))
+		      (-lambda (b)
+			(mg--checkout-tag-impl buf tag)))))))
+	 (switch-to-buffer-other-window mg-tag-buffer)))
+
+
 
 ;;;;;;;;;;;
 ;; other ;;
