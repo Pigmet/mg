@@ -302,50 +302,6 @@
 (setq mg-specific-tag-buffer
       (generate-new-buffer "*mg-specific-tag*"))
 
-(defun mg--tag-show-string (tag)
-  (shell-command-to-string (format "git show %s" tag)))
-
-
-;; FIXME: check show-tag (make sure you call the command
-;;in the correct buffer)
-
-(defun mg--show-tag-buffer
-    (tag)
-  (mylet [res (mg--tag-show-string tag)]
-	 (with-current-buffer
-	     mg-specific-tag-buffer
-	   (erase-buffer)
-	   (save-excursion
-	     (insert res)))
-	 (switch-to-buffer-other-window mg-specific-tag-buffer)))
-
-(defun mg--show-tag (tag)
-  (message "%s" (mg--tag-show-string tag)))
-
-(defun mg--get-tag-list ()
-  (->>   (shell-command-to-string "git tag")
-	 (s-split "\n")
-	 (-map 's-trim)
-	 (-remove (-lambda (s) (zerop (length s))))
-	 reverse))
-
-(defun mg-list-tag ()
-  (interactive)
-  (mylet [coll (mg--get-tag-list)]
-	 (with-current-buffer
-	     mg-tag-buffer
-	   (erase-buffer)
-	   (save-excursion
-	     (loop for s in coll
-		   do
-		   (insert-text-button
-		    s
-		    'action
-		    (lexical-let ((tag s))
-		      (-lambda(b) (mg--show-tag-buffer tag))))
-		   (insert "\n"))))
-	 (switch-to-buffer-other-window mg-tag-buffer)))
-
 (defun mg-create-tag ()
   (interactive)
   (mylet [v (read-string "version:")
@@ -353,25 +309,6 @@
 	 (shell-command (format "git tag -a %s -m \"%s\"" v msg))
 	 (message "new tag %s was created." v)))
 
-(defun mg-checkout-tag ()
-  (interactive)
-  (mylet [coll (mg--get-tag-list)]
-	 (with-current-buffer mg-tag-buffer
-	   (erase-buffer)
-	   (save-excursion
-	     (insert "checkout tag:\n")
-	     (loop for tag in coll
-		   do
-		   (insert-text-button
-		    tag
-		    'action
-		    (lexical-let ((tag tag))
-		      (-lambda (b)
-			(message
-			 (shell-command-to-string
-			  (format "git checkout %s" tag))))))
-		   (insert "\n"))))
-	 (switch-to-buffer-other-window mg-tag-buffer)))
 
 ;;;;;;;;;;;
 ;; other ;;
