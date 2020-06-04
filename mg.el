@@ -305,6 +305,10 @@
 (defun mg--tag-show-string (tag)
   (shell-command-to-string (format "git show %s" tag)))
 
+
+;; FIXME: check show-tag (make sure you call the command
+;;in the correct buffer)
+
 (defun mg--show-tag-buffer
     (tag)
   (mylet [res (mg--tag-show-string tag)]
