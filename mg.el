@@ -260,6 +260,12 @@
 		(format "merge branch %s to %s ?" br cur-br ))
 	   (mg--merge-impl br))))
 
+(defun mg-merge-abort()
+  (interactive)
+  (when (y-or-n-p "abort merge?")
+    (shell-command "git merge --abort")
+    (message "aborted merge.")))
+
 ;;;;;;;;;;;;
 ;; remote ;;
 ;;;;;;;;;;;;
@@ -304,6 +310,7 @@
 
 (defun mg-create-tag ()
   (interactive)
+  (save-some-buffers)
   (mylet [v (read-string "version:")
 	    msg (read-string "message:")]
 	 (shell-command (format "git tag -a %s -m \"%s\"" v msg))
@@ -316,8 +323,7 @@
 	 (->> s
 	      (s-split "\n")
 	      (-map 's-trim)
-	      (-remove (-lambda (s)(= 0 (length s))))
-	      reverse)))
+	      (-remove (-lambda (s)(= 0 (length s)))))))
 
 (defun mg--show-tag-impl (buf tag)
   (mylet [s (with-current-buffer buf
@@ -376,8 +382,6 @@
 		      (-lambda (b)
 			(mg--checkout-tag-impl buf tag)))))))
 	 (switch-to-buffer-other-window mg-tag-buffer)))
-
-
 
 ;;;;;;;;;;;
 ;; other ;;
